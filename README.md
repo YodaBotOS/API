@@ -1,4 +1,5 @@
 # Yoda API
+### Yoda API Version 1
 Welcome to Yoda API. This is the source code for the API.
 
 # Hosting
@@ -23,9 +24,3 @@ If you find any issues regarding accessing/using the API and others, please repo
 - This API is not yet documented well yet. We will be working on that soon (PRs will be greatly appreciated). 
 - Even though this API's code is Open Sourced, does not mean you can copy the code. View the [LICENSE](#license) for more information.
 - More API endpoints will be added soon.
-
-# API Versions:
-- latest or /api (this automatically updates to the latest version)
-- v1
-- v2
-- v3
