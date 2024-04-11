@@ -1,11 +1,8 @@
-## ⚠ ARCHIVED REPO OF YODA API
-This repository is no longer maintained. Please visit [@YodaBotOS/API](https://github.com/YodaBotOS/API) for the current and up-to-date version of this API.
-
 # Yoda API
 Welcome to Yoda API. This is the source code for the API.
 
 # Hosting
-Currently, Yoda API is hosted behind Cloudflare using it as a reserve proxy and a CDN with a load balancer hosted on multiple servers on OCI.
+Currently, Yoda API is hosted behind Cloudflare using it as a reserve proxy and a CDN with a load balancer hosted on multiple servers on GCP, OCI, AWS and Azure.
 
 # LICENSE
 This project is licensed under the MPL-2.0 License. See the [LICENSE](LICENSE) file for more information.
