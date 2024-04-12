@@ -16,7 +16,6 @@ from routes import init_router
 
 
 def setup_sentry():
-    return
     sentry_sdk.init(
         dsn=config.SENTRY_DSN,
 
@@ -24,6 +23,7 @@ def setup_sentry():
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production,
         traces_sample_rate=1.0,
+        release="v1",
     )
 
 
