@@ -23,7 +23,7 @@ def setup_sentry():
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production,
         traces_sample_rate=1.0,
-        release="v1",
+        release="v2",
     )
 
 
