@@ -30,7 +30,7 @@ async def root():
 
 
 @router.get("/version", include_in_schema=False)
-async def root():
+async def version():
     return PlainTextResponse("v2")
 
 

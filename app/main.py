@@ -65,9 +65,9 @@ async def playground():
                                swagger_favicon_url="/favicon.ico")
 
 
-@app.get("/", include_in_schema=False)
-async def root():
-    return RedirectResponse("/docs")
+# @app.get("/", include_in_schema=False)
+# async def root():
+#     return RedirectResponse("/docs")
 
 
 @app.get("/favicon.ico", include_in_schema=False)
