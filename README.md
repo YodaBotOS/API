@@ -1,2 +1,2 @@
 # Yoda Bot API
-Yoda Bot API - Beta WIP
+Yoda Bot API
