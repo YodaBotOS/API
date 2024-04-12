@@ -1,5 +1,5 @@
 # Yoda API
-### Yoda API Version 1
+### Yoda API Version 2
 Welcome to Yoda API. This is the source code for the API.
 
 # Hosting
