@@ -17,7 +17,7 @@ study_notes = StudyNotes(config.openai_token)
 
 @router.get("/", include_in_schema=False)
 async def root():
-    return PlainTextResponse("Hello World! Version v2 study-notes")
+    return PlainTextResponse("Hello World! Version v3 study-notes")
 
 
 @router.get("/generate")

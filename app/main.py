@@ -13,7 +13,7 @@ setup_sentry()
 app = App(
     title="Yoda API",
     description="A public API hosted by YodaBotOS. [Open-Sourced at GitHub](https://github.com/YodaBotOS/API)",
-    version="v2",
+    version="v3",
     redoc_url=None,
     docs_url=None,
     openapi_url="/assets/openapi.json",
@@ -51,6 +51,10 @@ app.openapi = custom_openapi
 @app.exception_handler(Exception)
 async def exception_handler_500(request: fastapi.Request, exc):
     return JSONResponse({"error": {"code": 500, "message": "Internal Server Error"}}, status_code=500)
+
+@app.exception_handler(404)
+async def not_found_handler_404(request: fastapi.Request, exc):
+    return JSONResponse({"error": {"code": 404, "message": "Not Found"}})
 
 
 @app.get("/docs", include_in_schema=False)

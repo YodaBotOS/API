@@ -10,8 +10,9 @@ from .study_notes import init_router as study_notes_router
 from .ocr import init_router as ocr_router
 from .translate import init_router as translate_router
 from .translate_ocr import init_router as translate_ocr_router
+from .image import init_router as image_router
 
-router = APIRouter(deprecated=True)
+router = APIRouter()
 routes = [
     ("Music", music_router),
     ("Lyrics", lyrics_router),
@@ -21,17 +22,18 @@ routes = [
     ("OCR", ocr_router),
     ("Translate", translate_router),
     ("Translate OCR", translate_ocr_router),
+    ("Image", image_router)
 ]
 
 
 @router.get("/", include_in_schema=False)
 async def root():
-    return PlainTextResponse("Hello World! Version v2")
+    return PlainTextResponse("Hello World! Version v3")
 
 
 @router.get("/version", include_in_schema=False)
 async def version():
-    return PlainTextResponse("v2")
+    return PlainTextResponse("v3")
 
 
 def init_router(app):

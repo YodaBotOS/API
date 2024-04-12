@@ -24,8 +24,8 @@ router = APIRouter(
 
 db = Database(config.DATABASE_HOST, config.DATABASE_AUTH)
 
-s3 = boto3.client("s3", region_name=config.S3_BUCKET_REGION, aws_access_key_id=config.S3_AWS_ACCESS_KEY_ID,
-                  aws_secret_access_key=config.S3_AWS_SECRET_ACCESS_KEY)
+s3 = boto3.client("s3", region_name=config.S3_BUCKET_REGION, aws_access_key_id=config.R2_ACCESS_KEY_ID,
+                  aws_secret_access_key=config.R2_SECRET_ACCESS_KEY, endpoint_url=config.R2_ENDPOINT_URL)
 
 
 async def get_dolby_io_token(sess):
@@ -49,10 +49,16 @@ async def get_dolby_io_token(sess):
 
     return token
 
+def create_presigned_url(bucket_name, object_name, operation='get_object', expiration=3600):
+    return s3.generate_presigned_url(operation,
+        Params={'Bucket': bucket_name, 'Key': object_name},
+        ExpiresIn=expiration
+    )
+
 
 @router.get("/", include_in_schema=False)
 async def root():
-    return PlainTextResponse("Hello World! Version v2 music")
+    return PlainTextResponse("Hello World! Version v3 music")
 
 
 @router.post("/predict-genre", response_class=JSONResponse)
@@ -76,27 +82,18 @@ async def predict_genre(mode: Literal["fast", "best"] = "fast", file: UploadFile
         async with aiohttp.ClientSession() as sess:
             token = await get_dolby_io_token(sess)
 
-            s3.upload_file(f"tmp/{hash}.mp3", config.S3_BUCKET, f"v1/music/predict-genre/in/{hash}.mp3")
+            s3.upload_file(f"tmp/{hash}.mp3", config.R2_BUCKET, f"predict-genre/input/{hash}.mp3")
+            
+            input_url = create_presigned_url(config.R2_BUCKET, f"predict-genre/input/{hash}.mp3")
+            output_url = create_presigned_url(config.R2_BUCKET, f"predict-genre/output/{hash}.json", operation='put_object', expiration=7200)
 
             os.remove(f"tmp/{hash}.mp3")
 
             url = "https://api.dolby.com/media/analyze"
 
             payload = {
-                "output": {
-                    "auth": {
-                        "key": config.S3_AWS_ACCESS_KEY_ID,
-                        "secret": config.S3_AWS_SECRET_ACCESS_KEY,
-                    },
-                    "url": f"s3://{config.S3_BUCKET}/v1/music/predict-genre/out/{hash}.json",
-                },
-                "input": {
-                    "auth": {
-                        "key": config.S3_AWS_ACCESS_KEY_ID,
-                        "secret": config.S3_AWS_SECRET_ACCESS_KEY,
-                    },
-                    "url": f"s3://{config.S3_BUCKET}/v1/music/predict-genre/in/{hash}.mp3",
-                }
+                "output": output_url,
+                "input": input_url
             }
 
             headers = {
@@ -123,12 +120,11 @@ async def predict_genre(mode: Literal["fast", "best"] = "fast", file: UploadFile
 async def get_predict_genre(job_id: str):
     d = await db.query("SELECT * FROM predict_genre WHERE job_id = $1", job_id)
     d = d.results[0].result[0]
+    
+    ex_ori = d['expire']
+    d['expire'] = datetime.datetime.utcfromtimestamp(d['expire']) if d['expire'] else datetime.datetime.now() + datetime.timedelta(days=1)
 
-    d['expires'] = datetime.datetime.utcfromtimestamp(
-        d['expires'] or datetime.datetime.now() + datetime.timedelta(days=1)
-    )
-
-    if not d['hash'] or datetime.datetime.utcnow() > d['expires']:
+    if not d['hash'] or datetime.datetime.utcnow() > d['expire']:
         return JSONResponse({"error": {"code": 404}, "message": "Job ID not found, or has already expired "
                                                                 "(3 minutes after success/failed/cancelled)."},
                             status_code=404)
@@ -156,8 +152,8 @@ async def get_predict_genre(job_id: str):
 
             status = data["status"]
 
-            if status in ["success", "failed", "cancelled"]:
-                expire = (datetime.datetime.utcnow() + datetime.timedelta(minutes=3)).timestamp()
+            if status.lower() in ["success", "failed", "cancelled"] and not ex_ori:
+                expire = int((datetime.datetime.utcnow() + datetime.timedelta(minutes=3)).timestamp()) 
 
                 await db.query("UPDATE predict_genre SET expire = $2 WHERE job_id = $1", expire, job_id)
 
@@ -167,7 +163,7 @@ async def get_predict_genre(job_id: str):
                     "progress": 100,
                 }
 
-                obj = s3.get_object(Bucket=config.S3_BUCKET, Key=f"v1/music/predict-genre/out/{hash}.json")
+                obj = s3.get_object(Bucket=config.R2_BUCKET, Key=f"predict-genre/output/{hash}.json")
 
                 obj_body = obj["Body"].read().decode("utf-8")
 
@@ -185,7 +181,7 @@ async def get_predict_genre(job_id: str):
                 return JSONResponse(d)
             else:
                 d = {
-                    "status": data["status"].lower(),
+                    "status": status.lower(),
                     "result": {},
                 }
 

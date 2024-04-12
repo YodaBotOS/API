@@ -15,7 +15,7 @@ grammar_correction = GrammarCorrection(config.openai_token)
 
 @router.get("/", include_in_schema=False)
 async def root():
-    return PlainTextResponse("Hello World! Version v2 grammar-correction")
+    return PlainTextResponse("Hello World! Version v3 grammar-correction")
 
 
 @router.get("/correct")

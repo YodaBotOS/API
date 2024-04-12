@@ -35,18 +35,24 @@ for i in ['lyric-images', 'shazam-lyrics']:
         continue
 
 
-@router.get("/", include_in_schema=False)
-async def root():
-    return PlainTextResponse("Hello World! Version v2 lyrics")
-
-
-@router.get("/search")
-async def search(q: str):
+def query_check(q):
     q = q.replace('+', ' ').strip()
 
     regex_res = re.findall(r'\(.*\)', q)
     for i in regex_res:
         q = q.replace(i, '')
+
+    return q
+
+
+@router.get("/", include_in_schema=False)
+async def root():
+    return PlainTextResponse("Hello World! Version v3 lyrics")
+
+
+@router.get("/search")
+async def search(q: str):
+    q = query_check(q)
 
     if not q:
         return JSONResponse({'error': {'code': 400}, 'message': 'No query provided.'}, status_code=400)
@@ -56,39 +62,45 @@ async def search(q: str):
     if not res:
         return JSONResponse({'title': None, 'artist': None, 'lyrics': None, 'images': {}}, status_code=404)
 
-    res_title = res.title.replace(" ", "_")
-    res_artist = res.artist.replace(" ", "_")
+    if not res.title:
+        return JSONResponse({'title': None, 'artist': None, 'lyrics': None, 'images': {}}, status_code=404)
+
+    res_title = res.title.replace(" ", "_").replace("/", "")
+    res_artist = (res.artist or "unknown").replace(" ", "_").replace("/", "")
 
     if res._images_saved_before and res.images:
         images = res.images
     else:
-        if not os.path.exists(f'./lyric-images/{res_title}-{res_artist}'):
-            os.mkdir(f'./lyric-images/{res_title}-{res_artist}')
-
         images = {}
 
-        for image_name, url in res.images.items():
-            if url and image_name:
-                async with aiohttp.ClientSession() as sess:
-                    async with sess.get(url) as resp:
-                        image_content = await resp.read()
-
-                with open(f'./lyric-images/{res_title}-{res_artist}/{image_name}.jpg', 'wb') as f:
-                    f.write(image_content)
-
-                s3.upload_file(
-                    f'./lyric-images/{res_title}-{res_artist}/{image_name}.jpg',
-                    config.R2_BUCKET,
-                    f'lyrics/{res_title}-{res_artist}/{image_name}.jpg'
-                )
-
-                x = safe_text_url(res_title + '-' + res_artist)
-
-                images[image_name] = f'{x}/{image_name}.jpg'
-
-                os.remove(f'./lyric-images/{res_title}-{res_artist}/{image_name}.jpg')
-
         try:
+            if not os.path.exists(f'./lyric-images/{res_title}-{res_artist}'):
+                os.mkdir(f'./lyric-images/{res_title}-{res_artist}')
+
+            for image_name, url in res.images.items():
+                try:
+                    if url and image_name:
+                        async with aiohttp.ClientSession() as sess:
+                            async with sess.get(url) as resp:
+                                image_content = await resp.read()
+
+                        with open(f'./lyric-images/{res_title}-{res_artist}/{image_name}.jpg', 'wb') as f:
+                            f.write(image_content)
+
+                        s3.upload_file(
+                            f'./lyric-images/{res_title}-{res_artist}/{image_name}.jpg',
+                            config.R2_BUCKET,
+                            f'lyrics/{res_title}-{res_artist}/{image_name}.jpg'
+                        )
+
+                        x = safe_text_url(res_title + '-' + res_artist)
+
+                        images[image_name] = f'{x}/{image_name}.jpg'
+
+                        os.remove(f'./lyric-images/{res_title}-{res_artist}/{image_name}.jpg')
+                except:
+                    continue
+
             os.remove(f'./lyric-images/{res_title}-{res_artist}')
         except:
             pass
@@ -115,6 +127,21 @@ async def search(q: str):
         pass
 
     return JSONResponse(d)
+
+
+@router.get("/suggest")
+async def suggest_tracks(q: str, amount: int = 10):
+    q = query_check(q)
+
+    if not q:
+        return JSONResponse({'error': {'code': 400}, 'message': 'No query provided.'}, status_code=400)
+
+    if amount < 1 or amount > 20:
+        return JSONResponse({'error': {'code': 400}, 'message': 'amount must be between 1 and 20.'}, status_code=400)
+
+    res = await lyrics.suggest(q, amount)
+
+    return JSONResponse(res)
 
 
 def init_router(app):

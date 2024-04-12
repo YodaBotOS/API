@@ -23,7 +23,7 @@ def setup_sentry():
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production,
         traces_sample_rate=1.0,
-        release="v2",
+        release="v3",
     )
 
 
@@ -58,11 +58,11 @@ def make_tmp_dir(app: App):
 
 
 def add_routes(app: App):
-    routes = [("2", init_router)]
+    routes = [("3", init_router)]
 
     for name, route in routes:
         r = route(app)
-        app.include_router(r, tags=[f"v{name}"], include_in_schema=True)
+        app.include_router(r, include_in_schema=True)
 
 
 def add_analytics(app: App):
