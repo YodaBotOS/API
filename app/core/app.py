@@ -62,7 +62,7 @@ def add_routes(app: App):
 
     for name, route in routes:
         r = route(app)
-        app.include_router(r, tags=[f"v{name}"], include_in_schema=False)
+        app.include_router(r, tags=[f"v{name}"], include_in_schema=True)
 
 
 def add_analytics(app: App):
