@@ -16,7 +16,7 @@ We will not help you with self-hosting this API.
 Either way, it's already open to the public using our machines, hosted on Cloudflare. You can (should be able to) use it without any problems.
 
 # Issues
-If you find any issues regarding accessing/using the API and others, please report them [here](https://github.com/YodaBotOS/API-archive/issues/new).
+If you find any issues regarding accessing/using the API and others, please report them [here](https://github.com/YodaBotOS/API/issues/new).
 
 # Notes:
 - This API is the continuation of the now archived [OpenRobot](https://github.com/OpenRobot) API. Most of the code is from there and our [current bot](https://github.com/YodaBotOS/YodaBot).
