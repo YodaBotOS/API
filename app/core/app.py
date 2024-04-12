@@ -31,7 +31,7 @@ def on_startup(app: App):
     async def _():
         # db = await init_db(sync=False)
         #
-        # with open('schema.sql', 'r') as f:
+        # with open('assets/schema.sql', 'r') as f:
         #     query = f.read()
         #
         # async with db.acquire() as conn:

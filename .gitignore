@@ -6,6 +6,8 @@ setup.py
 vms.json
 google-cloud-sdk
 .vscode
+shazam-lyrics
+lyric-images
 
 # Temporary directories
 tmp/
