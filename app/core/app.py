@@ -58,7 +58,7 @@ def make_tmp_dir(app: App):
 
 
 def add_routes(app: App):
-    routes = [("1", init_router)]
+    routes = [("2", init_router)]
 
     for name, route in routes:
         r = route(app)

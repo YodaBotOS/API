@@ -6,13 +6,14 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.staticfiles import StaticFiles
 
 from core.app import callback, on_startup, on_shutdown, setup_sentry
+from core.utils import JSONResponse
 
 setup_sentry()
 
 app = App(
     title="Yoda API",
     description="A public API hosted by YodaBotOS. [Open-Sourced at GitHub](https://github.com/YodaBotOS/API)",
-    version="v1",
+    version="v2",
     redoc_url=None,
     docs_url=None,
     openapi_url="/assets/openapi.json",

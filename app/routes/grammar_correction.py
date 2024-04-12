@@ -1,9 +1,10 @@
 import fastapi  # type: ignore
 from fastapi import *
-from fastapi.responses import *
+from fastapi.responses import PlainTextResponse
 
-from core.grammar_correction import GrammarCorrection
 import config
+from core.utils import JSONResponse
+from core.grammar_correction import GrammarCorrection
 
 router = APIRouter(
     prefix="/grammar-correction",
@@ -14,7 +15,7 @@ grammar_correction = GrammarCorrection(config.openai_token)
 
 @router.get("/", include_in_schema=False)
 async def root():
-    return PlainTextResponse("Hello World! Version v1 grammar-correction")
+    return PlainTextResponse("Hello World! Version v2 grammar-correction")
 
 
 @router.get("/correct")

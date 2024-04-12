@@ -7,6 +7,7 @@ from fastapi.responses import *
 
 import config
 from core.chat import Chat
+from core.utils import JSONResponse
 from core.db import Database
 
 router = APIRouter(
@@ -19,7 +20,7 @@ chat = Chat(config.openai_token, db)
 
 @router.get("/", include_in_schema=False)
 async def root():
-    return PlainTextResponse("Hello World! Version v1 chat")
+    return PlainTextResponse("Hello World! Version v2 chat")
 
 
 @router.post("/start")

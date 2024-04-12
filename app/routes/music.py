@@ -1,22 +1,22 @@
-import datetime
 import json
 import os
 import string
 import random
 import base64
+import datetime
 from typing import *
 
 import boto3
 import aiohttp
 import fastapi  # type: ignore
 from fastapi import *
-from fastapi.responses import *
+from fastapi.responses import PlainTextResponse
 from redis import asyncio as aioredis  # type: ignore
 
 import config
+from core.utils import JSONResponse
 from core.genre_classification.src.get_genre import main as get_genre
 from core.db import Database
-
 
 router = APIRouter(
     prefix="/music",
@@ -52,7 +52,7 @@ async def get_dolby_io_token(sess):
 
 @router.get("/", include_in_schema=False)
 async def root():
-    return PlainTextResponse("Hello World! Version v1 music")
+    return PlainTextResponse("Hello World! Version v2 music")
 
 
 @router.post("/predict-genre", response_class=JSONResponse)
@@ -149,7 +149,7 @@ async def get_predict_genre(job_id: str):
 
         async with sess.get(url, params=params, headers=headers) as resp:
             resp.raise_for_status()
-            
+
             data = await resp.json()
 
             # data status = "running" | "success" | "failed" | "pending" | "cancelled"

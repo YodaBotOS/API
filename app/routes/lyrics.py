@@ -12,6 +12,7 @@ from fastapi.responses import *
 import config
 
 from core.lyrics import Lyrics, Tokens
+from core.utils import JSONResponse
 from core.db import Database
 
 router = APIRouter(
@@ -36,7 +37,7 @@ for i in ['lyric-images', 'shazam-lyrics']:
 
 @router.get("/", include_in_schema=False)
 async def root():
-    return PlainTextResponse("Hello World! Version v1 lyrics")
+    return PlainTextResponse("Hello World! Version v2 lyrics")
 
 
 @router.get("/search")

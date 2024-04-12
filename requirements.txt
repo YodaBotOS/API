@@ -16,3 +16,6 @@ asyncpg
 lyricsgenius
 git+https://github.com/proguy914629bot/ShazamIO
 openai
+google-cloud-translate
+Pillow
+thefuzz[speedup]

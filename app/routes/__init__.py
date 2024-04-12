@@ -8,6 +8,8 @@ from .chat import init_router as chat_router
 from .grammar_correction import init_router as grammar_correction_router
 from .study_notes import init_router as study_notes_router
 from .ocr import init_router as ocr_router
+from .translate import init_router as translate_router
+from .translate_ocr import init_router as translate_ocr_router
 
 router = APIRouter(deprecated=True)
 routes = [
@@ -17,17 +19,19 @@ routes = [
     ("Grammar Correction", grammar_correction_router),
     ("Study Notes", study_notes_router),
     ("OCR", ocr_router),
+    ("Translate", translate_router),
+    ("Translate OCR", translate_ocr_router),
 ]
 
 
 @router.get("/", include_in_schema=False)
 async def root():
-    return PlainTextResponse("Hello World! Version v1")
+    return PlainTextResponse("Hello World! Version v2")
 
 
 @router.get("/version", include_in_schema=False)
 async def root():
-    return PlainTextResponse("v1")
+    return PlainTextResponse("v2")
 
 
 def init_router(app):
